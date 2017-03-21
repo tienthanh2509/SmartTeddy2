@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="iot.tdmu.edu.vn.smartteddy.app.MainActivity">
+    tools:context="iot.tdmu.edu.vn.smartteddy.ui.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,7 +27,7 @@
             android:id="@+id/mySwitch"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:checked="true"
+            android:checked="false"
             android:textOn="APP"
             android:thumb="@drawable/customswitchselector"
             android:track="@drawable/custom_track"
@@ -45,7 +45,10 @@
             android:layout_height="match_parent"
             android:layout_weight="0.04"
             android:src="@drawable/teddy39" />
-
+        <TextView
+            android:id="@+id/txtTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <LinearLayout
@@ -57,7 +60,7 @@
             android:id="@+id/btnMusicVN"
             android:layout_width="190dp"
             android:layout_height="230dp"
-            android:text="@string/nhacvn"/>
+            android:text="@string/nhacvn" />
 
         <Button
             android:id="@+id/btnMusicEN"
@@ -65,6 +68,7 @@
             android:layout_height="230dp"
             android:text="@string/nhacnn" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -81,6 +85,6 @@
             android:id="@+id/btnConversation"
             android:layout_width="194dp"
             android:layout_height="256dp"
-            android:text="@string/cauthoai"/>
+            android:text="@string/cauthoai" />
     </LinearLayout>
 </LinearLayout>

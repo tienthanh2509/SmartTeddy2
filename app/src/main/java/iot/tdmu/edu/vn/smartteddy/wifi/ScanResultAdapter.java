@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import iot.tdmu.edu.vn.smartteddy.app.R;
+import iot.tdmu.edu.vn.smartteddy.ui.R;
 
 /**
  * Created by nguye on 3/10/2017.

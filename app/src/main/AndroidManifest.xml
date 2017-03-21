@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="iot.tdmu.edu.vn.smartteddy.app">
+    package="iot.tdmu.edu.vn.smartteddy.ui">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -14,6 +14,10 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACTION_OPEN_DOCUMENT" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -25,9 +29,8 @@
         <receiver
             android:name=".MyReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true" />
 
-        </receiver>
         <activity
             android:name=".WelcomeActivity"
             android:screenOrientation="portrait"
@@ -42,14 +45,19 @@
             android:name=".MainActivity"
             android:label="@string/app_name" />
         <activity android:name=".ConnectTeddyActivity" />
-        <activity android:name=".MusicActivity" />
+        <activity android:name=".MusicActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_OPEN_DOCUMENT" />
+
+                <category android:name="android.intent.category.CATEGORY_OPENABLE" />
+            </intent-filter>
+        </activity>
         <activity android:name=".RequestActivity" />
         <activity android:name=".ConectTeddybyQR_Activity" />
         <activity android:name=".ScanQR_Activity" />
         <activity android:name=".Scan_BlutoothActivity" />
         <activity android:name=".Send_Data_viaBTActivity" />
-
-
+        <activity android:name=".Audio2Activity"></activity>
     </application>
 
 </manifest>

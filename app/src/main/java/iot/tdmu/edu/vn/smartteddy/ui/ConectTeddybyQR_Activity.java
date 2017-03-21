@@ -1,6 +1,8 @@
-package iot.tdmu.edu.vn.smartteddy.app;
+package iot.tdmu.edu.vn.smartteddy.ui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -21,7 +23,7 @@ public class ConectTeddybyQR_Activity extends AppCompatActivity {
     public static final int PERMISSION_REQUEST = 200;
 
     String stringWifi;
-
+    final public static String addressBT = "addressBT" ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,15 +64,23 @@ public class ConectTeddybyQR_Activity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+
         btnConnectQR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int ma = 2;
-                Intent intent = new Intent(ConectTeddybyQR_Activity.this,Send_Data_viaBTActivity.class);
-                intent.putExtra("SSID_QR",stringWifi);
-                intent.putExtra("MA",ma);
-                Log.e("TAG",stringWifi);
+                int begin = stringWifi.indexOf("|") + 1;
+                int end = stringWifi.length();
+                String mac = stringWifi.substring(begin,end);
+                Log.e("TAG",mac);
+                SharedPreferences preferences = getSharedPreferences(addressBT,Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+
+                editor.putString("address",mac);
+                editor.apply();
+                Intent intent = new Intent(ConectTeddybyQR_Activity.this,RequestActivity.class);
+                intent.putExtra("MAC1",mac);
                 startActivity(intent);
+
             }
         });
 

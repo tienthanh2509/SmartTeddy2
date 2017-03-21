@@ -1,4 +1,4 @@
-package iot.tdmu.edu.vn.smartteddy.app;
+package iot.tdmu.edu.vn.smartteddy.ui;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -40,6 +40,9 @@ public class Scan_BlutoothActivity extends AppCompatActivity {
 
 
 
+    String address;
+    int ma;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,11 +73,15 @@ public class Scan_BlutoothActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //ParcelUuid[] uuid = arrayOfFoundBTDevices.get(position).getBluetooth_uuids();
                 //String uu = uuid[0].toString();
-                String address = arrayOfFoundBTDevices.get(position).getBluetooth_address();
+                address = arrayOfFoundBTDevices.get(position).getBluetooth_address();
 
-                Intent intent = new Intent(Scan_BlutoothActivity.this,Send_Data_viaBTActivity.class);
+                ma = 20;
+                Log.e("TAG",address);
+
+                Intent intent = new Intent(Scan_BlutoothActivity.this,RequestActivity.class);
                 //intent.putExtra("UUID",uu);
                 intent.putExtra("ADDRESS",address);
+                intent.putExtra("MABT",ma);
                 startActivity(intent);
             }
         });
@@ -206,6 +213,8 @@ public class Scan_BlutoothActivity extends AppCompatActivity {
             String noDevices = getResources().getText(R.string.none_paired).toString();
             mPairedDevicesArrayAdapter.add(noDevices);
         }*/
+
+
     }
 
     // Set up on-click listener for the list (nicked this - unsure)

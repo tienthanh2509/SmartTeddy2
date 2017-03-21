@@ -1,4 +1,4 @@
-package iot.tdmu.edu.vn.smartteddy.app;
+package iot.tdmu.edu.vn.smartteddy.ui;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

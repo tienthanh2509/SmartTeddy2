@@ -2,7 +2,6 @@ package iot.tdmu.edu.vn.smartteddy.bluetooth;
 
 import android.content.Context;
 import android.os.ParcelUuid;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -13,7 +12,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import iot.tdmu.edu.vn.smartteddy.app.R;
+import iot.tdmu.edu.vn.smartteddy.ui.R;
 
 /**
  * Created by nguye on 3/14/2017.

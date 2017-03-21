@@ -1,4 +1,4 @@
-package iot.tdmu.edu.vn.smartteddy.app;
+package iot.tdmu.edu.vn.smartteddy.ui;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
-import android.os.ParcelUuid;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,22 +25,22 @@ public class Send_Data_viaBTActivity extends AppCompatActivity {
     Button btnSend;
     TextView txtString;
 
-    Handler bluetoothIn;
+    private Handler bluetoothIn;
 
-    final int handlerState = 0;        				 //used to identify handler message
+    final int handlerState = 2;        				 //used to identify handler message
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
     private StringBuilder recDataString = new StringBuilder();
 
     private ConnectedThread mConnectedThread;
-    final int RECIEVE_MESSAGE = 1;
+    final int RECIEVE_MESSAGE = 2;
 
     // SPP UUID service - this should work for most devices
     final private static UUID BTMODULEUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     // String for MAC address
-    private static String address;
-    Intent intent;
+     static String address;
+    Intent intent1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,17 +49,17 @@ public class Send_Data_viaBTActivity extends AppCompatActivity {
         btnSend = (Button) findViewById(R.id.btnSend);
         txtString = (TextView) findViewById(R.id.txtString);
 
-        intent = getIntent();
+        intent1 = getIntent();
         //final String uuids = intent.getStringExtra("UUID");
-        address = intent.getStringExtra("ADDRESS");
-
+        address = intent1.getStringExtra("MAC3");
+        Log.e("ADDRESS",address);
         //BTMODULEUUID = UUID.fromString(uuids);
 
         bluetoothIn = new Handler(){
             public void handleMessage(android.os.Message msg) {
                 switch (msg.what) {
                     case RECIEVE_MESSAGE:													// if receive massage
-                        byte[] readBuf = (byte[]) msg.obj;
+                        /*byte[] readBuf = (byte[]) msg.obj;
                         String strIncom = new String(readBuf, 0, msg.arg1);					// create string from bytes array
                         recDataString.append(strIncom);												// append string
                         int endOfLineIndex = recDataString.indexOf("\r\n");
@@ -69,7 +68,10 @@ public class Send_Data_viaBTActivity extends AppCompatActivity {
                             recDataString.delete(0, recDataString.length());										// and clear
                             txtString.setText("Data from Raspberry Pi: " + " " + sbprint); 	        // update TextView
                             btnSend.setEnabled(true);
-                        }
+                        }*/
+                        String readMesage = (String) msg.obj;
+                        Log.d("TAG",readMesage);
+
                         break;
                 }
             }
@@ -86,12 +88,14 @@ public class Send_Data_viaBTActivity extends AppCompatActivity {
                 int ma = intent.getIntExtra("MA",0);
                 String id = intent.getStringExtra("SSID");
                 String pass =  intent.getStringExtra("PASS");
-                String wifiString = intent.getStringExtra("SSID_QR");
+                //String wifiString = intent.getStringExtra("SSID_QR");
                 if(ma == 1){
                     mConnectedThread.write("wifi|" + id + "|" + pass);
-                } else if (ma == 2){
-                    mConnectedThread.write("wifi|" + wifiString);
-                }
+                    Intent intent2 = new Intent(Send_Data_viaBTActivity.this,MainActivity.class);
+                    startActivity(intent2);
+                } //else if (ma == 2){
+                    //mConnectedThread.write("wifi|" + wifiString);
+                //}
 
             }
         });
@@ -148,7 +152,7 @@ public class Send_Data_viaBTActivity extends AppCompatActivity {
 
         //I send a character when resuming.beginning transmission to check device is connected
         //If it is not an exception will be thrown in the write method and finish() will be called
-        //mConnectedThread.write("x");
+        //mConnectedThread.write("wifi|version");
     }
 
     @Override
@@ -171,6 +175,7 @@ public class Send_Data_viaBTActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(), "Device does not support bluetooth", Toast.LENGTH_LONG).show();
         } else {
             if (btAdapter.isEnabled()) {
+                Toast.makeText(getBaseContext(),"Đã kết nối...",Toast.LENGTH_SHORT).show();
             } else {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, 1);
@@ -184,7 +189,7 @@ public class Send_Data_viaBTActivity extends AppCompatActivity {
         private final OutputStream mmOutStream;
 
         //creation of the connect thread
-        public ConnectedThread(BluetoothSocket socket) {
+        private ConnectedThread(BluetoothSocket socket) {
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
@@ -192,7 +197,9 @@ public class Send_Data_viaBTActivity extends AppCompatActivity {
                 //Create I/O streams for connection
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
@@ -209,14 +216,14 @@ public class Send_Data_viaBTActivity extends AppCompatActivity {
                     bytes = mmInStream.read(buffer);        	//read bytes from input buffer
                     String readMessage = new String(buffer, 0, bytes);
                     // Send the obtained bytes to the UI Activity via handler
-                    bluetoothIn.obtainMessage(handlerState, bytes, -1, readMessage).sendToTarget();
+                    bluetoothIn.obtainMessage(handlerState, bytes, -1, readMessage.toString()).sendToTarget();
                 } catch (IOException e) {
                     break;
                 }
             }
         }
         //write method
-        public void write(String input) {
+        private void write(String input) {
             byte[] msgBuffer = input.getBytes();           //converts entered String into bytes
             try {
                 mmOutStream.write(msgBuffer);                //write bytes over BT connection via outstream

@@ -1,4 +1,4 @@
-package iot.tdmu.edu.vn.smartteddy.app;
+package iot.tdmu.edu.vn.smartteddy.ui;
 
 import android.Manifest;
 import android.content.Context;
@@ -141,6 +141,13 @@ import iot.tdmu.edu.vn.smartteddy.intro.Session;
                 permissionsNeeded.add("BLUETOOTH");
             }
 
+            if (!addPermission(permissionsList,Manifest.permission.READ_EXTERNAL_STORAGE)){
+                permissionsNeeded.add("SDCARD");
+            }
+            if (!addPermission(permissionsList,Manifest.permission.RECORD_AUDIO)){
+                permissionsNeeded.add("RECODE");
+            }
+
             if (permissionsList.size() > 0){
                 requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
                         REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
@@ -173,6 +180,8 @@ import iot.tdmu.edu.vn.smartteddy.intro.Session;
                 perms.put(android.Manifest.permission.INTERNET,PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.CAMERA,PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.BLUETOOTH,PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.READ_EXTERNAL_STORAGE,PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.RECORD_AUDIO,PackageManager.PERMISSION_GRANTED);
                 for (int i = 0; i < permissions.length;i++){
                     perms.put(permissions[i],grantResults[i]);
                 }
@@ -180,7 +189,9 @@ import iot.tdmu.edu.vn.smartteddy.intro.Session;
                         perms.get(Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
                         &&perms.get(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
                         &&perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-                        &&perms.get(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED){
+                        &&perms.get(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED
+                        &&perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                        &&perms.get(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED){
                     return;
                 } else {
                     if (Build.VERSION.SDK_INT >= 23) {
@@ -216,7 +227,11 @@ import iot.tdmu.edu.vn.smartteddy.intro.Session;
         dotsLayout.removeAllViews();
         for (int i = 0; i < dots.length; i++) {
             dots[i] = new TextView(this);
-            dots[i].setText(Html.fromHtml("&#8226;"));
+            if(Build.VERSION.SDK_INT >= 24) {
+                dots[i].setText(Html.fromHtml("&#8226;",Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                dots[i].setText(Html.fromHtml("&#8226;"));
+            }
             dots[i].setTextSize(35);
             dots[i].setTextColor(colorsInactive[currentPage]);
             dotsLayout.addView(dots[i]);
@@ -228,7 +243,7 @@ import iot.tdmu.edu.vn.smartteddy.intro.Session;
 
     private void launchHomeScreen() {
         session.setFirstTimeLaunch(false);
-        startActivity(new Intent(WelcomeActivity.this, Scan_BlutoothActivity.class));
+        startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
         finish();
     }
 

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/activity_main"
-    tools:context="iot.tdmu.edu.vn.smartteddy.app.ConectTeddybyQR_Activity">
+    tools:context="iot.tdmu.edu.vn.smartteddy.ui.ConectTeddybyQR_Activity">
     <Button
         android:id="@+id/scanbtn"
         android:layout_width="match_parent"
@@ -27,7 +27,8 @@
         android:id="@+id/btnConnectQR"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/result"/>
+        android:layout_below="@id/result"
+        android:text="Connect QR"/>
 
 
 

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/setting"
-        android:title="Cài Đặt"
+    <item android:id="@+id/connectQR"
+        android:title="Kết Nối Qua QR Code"
         android:orderInCategory = "100"
         app:showAsAction = "never"
         />
-    <item android:id="@+id/infomation"
-        android:title="Thông tin"
+    <item android:id="@+id/connectBT"
+        android:title="Kết Nối Qua Bluetooth "
         android:orderInCategory = "100"
         app:showAsAction = "never"/>
     <item android:id="@+id/logout"

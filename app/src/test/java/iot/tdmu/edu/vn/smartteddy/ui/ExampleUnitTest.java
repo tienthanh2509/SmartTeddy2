@@ -1,4 +1,4 @@
-package iot.tdmu.edu.vn.smartteddy.app;
+package iot.tdmu.edu.vn.smartteddy.ui;
 
 import org.junit.Test;
 
