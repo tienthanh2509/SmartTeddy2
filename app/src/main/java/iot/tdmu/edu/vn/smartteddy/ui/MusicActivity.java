@@ -2,6 +2,7 @@ package iot.tdmu.edu.vn.smartteddy.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
@@ -60,13 +61,13 @@ public class MusicActivity extends AppCompatActivity {
     ListView lvPlaylist_ThieuNhi, lvPlayList_NgoaiQuoc, lvPlayList_Truyen;
     ArrayList<SongA> dsKQ;
     ArrayAdapter<SongA> songArrayAdapter;
-    //ArrayList<SongA> dsKQ2;
-    //ArrayAdapter<SongA> songArrayAdapter2;
     int ma, machuyendoi, tam;
 
     Intent intent;
     MediaPlayer player;
     Handler seekHandler = new Handler();
+    private io.socket.client.Socket socket;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +89,9 @@ public class MusicActivity extends AppCompatActivity {
         dsKQ = new ArrayList<>();
 
         songArrayAdapter = new ArrayAdapter<>(MusicActivity.this, android.R.layout.simple_list_item_1, dsKQ);
-        lvPlaylist_ThieuNhi.setAdapter(songArrayAdapter);
-        lvPlayList_NgoaiQuoc.setAdapter(songArrayAdapter);
+
+
+
 
         intent = getIntent();
         ma = intent.getIntExtra("MA", 0);
@@ -108,6 +110,7 @@ public class MusicActivity extends AppCompatActivity {
                 }
                 DataTask task = new DataTask();
                 task.execute(url);
+                lvPlaylist_ThieuNhi.setAdapter(songArrayAdapter);
                 break;
             case 2:
                 lvPlaylist_ThieuNhi.setVisibility(View.GONE);
@@ -115,17 +118,27 @@ public class MusicActivity extends AppCompatActivity {
                 lvPlayList_Truyen.setVisibility(View.GONE);
                 URL url1 = null;
                 try {
-                    url1 = new URL("http://103.27.236.133:3000/api/v1/album/1");
+                    url1 = new URL("http://103.27.236.133:3000/api/v1/album/3");
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
                 DataTask task1 = new DataTask();
                 task1.execute(url1);
+                lvPlayList_NgoaiQuoc.setAdapter(songArrayAdapter);
                 break;
             case 3:
                 lvPlaylist_ThieuNhi.setVisibility(View.GONE);
                 lvPlayList_NgoaiQuoc.setVisibility(View.GONE);
                 lvPlayList_Truyen.setVisibility(View.VISIBLE);
+                URL url2 = null;
+                try {
+                    url2 = new URL("http://103.27.236.133:3000/api/v1/album/2");
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                DataTask task2 = new DataTask();
+                task2.execute(url2);
+                lvPlayList_Truyen.setAdapter(songArrayAdapter);
                 break;
         }
 
@@ -157,6 +170,20 @@ public class MusicActivity extends AppCompatActivity {
         cursor.close();
         return s;
     }
+    public String getRealPathFromURI(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
+            int column_index =  cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
 
     public String getFileName(Uri uri) {
         String result = null;
@@ -181,38 +208,6 @@ public class MusicActivity extends AppCompatActivity {
     }
 
 
-    public static byte[] getByteArrayFromLocalFile(Uri path) {
-        File file = new File(path.toString());
-        int size = (int) file.length();
-        byte[] bytes = new byte[size];
-
-        try {
-            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
-            buf.read(bytes, 0, bytes.length);
-            buf.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return bytes;
-    }
-
-    public String getImagePath(Uri uri){
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        cursor.moveToFirst();
-        String document_id = cursor.getString(0);
-        document_id = document_id.substring(document_id.lastIndexOf(":")+1);
-        cursor.close();
-
-        cursor = getContentResolver().query(
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
-        cursor.moveToFirst();
-        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-        cursor.close();
-
-        return path;
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -221,13 +216,14 @@ public class MusicActivity extends AppCompatActivity {
                 && resultCode == Activity.RESULT_OK && data != null) {
             final Uri uri = data.getData();
             final String result = "/storage/emulated/0/Music/" + getFileName(uri);
-            Log.e("FILE",result);
+            //final String result = getRealPathFromURI(MusicActivity.this,uri);
+            //Log.e("FILE",result);
             if (uri != null) {
                 final byte[] as = FileUtil.getByteArrayFromLocalFile(result);
                 Log.e("FILE",as.length +"");
                 Log.e("FILE",uri.toString());
                 try {
-                    final io.socket.client.Socket socket = IO.socket("http://103.27.236.133:3000/");
+                    socket = IO.socket("http://103.27.236.133:3000/");
                     socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
                         @Override
                         public void call(Object... args) {
@@ -411,25 +407,125 @@ public class MusicActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     posListView = position;
-                    try {
-                        if (player != null && player.isPlaying()) {
-                            player.stop();
-                            player.release();
-                            player = null;
+                    tam = machuyendoi;
+                    if(tam == 0) {
+                        try {
+                            if (player != null && player.isPlaying()) {
+                                player.stop();
+                                player.release();
+                                player = null;
+                            }
+
+                            player = new MediaPlayer();
+                            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                            player.setDataSource(String.format("http://103.27.236.133:3000%s", songs.get(position).getSong_src()));
+                            player.prepare();
+                            player.start();
+                            seekBar.setMax(player.getDuration());
+                            seekUpdation();
+                            playButton.setVisibility(View.VISIBLE);
+                            playButton.setImageResource(R.drawable.ic_pause_black_24dp);
+                            btnstop.setVisibility(View.VISIBLE);
+                        } catch (Exception e) {
+                            Log.e("LOI", e.toString());
+                        }
+                    }else if (tam == 1){
+                        class RequetsTask1 extends AsyncTask<URL,Void,ArrayList<SongA>>{
+
+
+                            @Override
+                            protected ArrayList<SongA> doInBackground(URL... params) {
+                                URL link = params[0];
+
+                                InputStreamReader inputStreamReader = null;
+                                try {
+                                    inputStreamReader = new InputStreamReader(link.openStream(), "UTF-8");
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                StringWriter writer = new StringWriter();
+                                try {
+                                    IOUtils.copy(inputStreamReader, writer);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                String theString = writer.toString();
+                                Log.e("TAG", theString);
+                                return null;
+                            }
                         }
 
-                        player = new MediaPlayer();
-                        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                        player.setDataSource(String.format("http://103.27.236.133:3000%s", songs.get(position).getSong_src()));
-                        player.prepare();
-                        player.start();
-                        seekBar.setMax(player.getDuration());
-                        seekUpdation();
-                        playButton.setVisibility(View.VISIBLE);
-                        playButton.setImageResource(R.drawable.ic_pause_black_24dp);
-                        btnstop.setVisibility(View.VISIBLE);
-                    } catch (Exception e) {
-                        Log.e("LOI", e.toString());
+                        URL url1 = null;
+                        try {
+                            url1 = new URL("http://103.27.236.133:3000/api/v1/play/" + songs.get(position).getSong_id());
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        }
+                        RequetsTask1 requetsTask = new RequetsTask1();
+                        requetsTask.execute(url1);
+                    }
+                }
+            });
+            lvPlayList_Truyen.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    posListView = position;
+                    tam = machuyendoi;
+                    if(tam == 0) {
+                        try {
+                            if (player != null && player.isPlaying()) {
+                                player.stop();
+                                player.release();
+                                player = null;
+                            }
+
+                            player = new MediaPlayer();
+                            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                            player.setDataSource(String.format("http://103.27.236.133:3000%s", songs.get(position).getSong_src()));
+                            player.prepare();
+                            player.start();
+                            seekBar.setMax(player.getDuration());
+                            seekUpdation();
+                            playButton.setVisibility(View.VISIBLE);
+                            playButton.setImageResource(R.drawable.ic_pause_black_24dp);
+                            btnstop.setVisibility(View.VISIBLE);
+                        } catch (Exception e) {
+                            Log.e("LOI", e.toString());
+                        }
+                    }else if (tam == 1){
+                        class RequetsTask2 extends AsyncTask<URL,Void,ArrayList<SongA>>{
+
+
+                            @Override
+                            protected ArrayList<SongA> doInBackground(URL... params) {
+                                URL link = params[0];
+
+                                InputStreamReader inputStreamReader = null;
+                                try {
+                                    inputStreamReader = new InputStreamReader(link.openStream(), "UTF-8");
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                StringWriter writer = new StringWriter();
+                                try {
+                                    IOUtils.copy(inputStreamReader, writer);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                String theString = writer.toString();
+                                Log.e("TAG", theString);
+                                return null;
+                            }
+                        }
+
+                        URL url1 = null;
+                        try {
+                            url1 = new URL("http://103.27.236.133:3000/api/v1/play/" + songs.get(position).getSong_id());
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        }
+                        RequetsTask2 requetsTask = new RequetsTask2();
+                        requetsTask.execute(url1);
                     }
                 }
             });
@@ -522,6 +618,7 @@ public class MusicActivity extends AppCompatActivity {
                         player.stop();
                         player.prepareAsync();
                         player.seekTo(0);
+                        playButton.setImageResource(R.drawable.ic_play_circle_filled_black_24dp);
                     } else {
                         player.start();
                     }
@@ -622,6 +719,7 @@ public class MusicActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        //socket.disconnect();
         if (player != null && player.isPlaying()) {
             player.release();
             player = null;

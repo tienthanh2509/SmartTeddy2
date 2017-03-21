@@ -57,7 +57,8 @@
         <activity android:name=".ScanQR_Activity" />
         <activity android:name=".Scan_BlutoothActivity" />
         <activity android:name=".Send_Data_viaBTActivity" />
-        <activity android:name=".Audio2Activity"></activity>
+        <activity android:name=".Audio2Activity" />
+        <activity android:name=".ChatActivity"></activity>
     </application>
 
 </manifest>

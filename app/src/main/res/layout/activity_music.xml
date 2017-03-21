@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="iot.tdmu.edu.vn.smartteddy.ui.MusicActivity"
-    android:background="#008080">
+    android:background="@drawable/hinhnen"
+    >
 
     <FrameLayout
         android:id="@+id/midiContainer"

@@ -28,7 +28,6 @@ public class Audio2Activity extends AppCompatActivity {
         sendRecord = (Button) findViewById(R.id.sendRecord);
         playRecord = (Button) findViewById(R.id.playRecord);
         sendRecord.setVisibility(View.GONE);
-        audioRecordHelper  = new AudioRecordHelper(Audio2Activity.this);
 
         setButtonHandlers();
         enableButtons(false);
@@ -96,9 +95,12 @@ public class Audio2Activity extends AppCompatActivity {
     }
     private View.OnClickListener btnClick = new View.OnClickListener() {
         public void onClick(View v) {
+
+
             switch (v.getId()) {
                 case R.id.playRecord: {
                     enableButtons(true);
+                    audioRecordHelper  = new AudioRecordHelper(Audio2Activity.this);
                     audioRecordHelper.startRecording();
                     break;
                 }

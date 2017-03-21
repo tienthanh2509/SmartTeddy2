@@ -1,10 +1,13 @@
 package iot.tdmu.edu.vn.smartteddy.ui;
 
 
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,17 +17,28 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.URISyntaxException;
+import java.util.Calendar;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 import iot.tdmu.edu.vn.smartteddy.audio.AudioRecordHelper;
 
 public class MainActivity extends AppCompatActivity {
 
     //Button btnNhacVN,btnMusicEN,btnStory;
-    ImageButton btnNhacVN,btnMusicEN,btnStory,btnConversation;
+    ImageButton btnNhacVN,btnMusicEN,btnStory,btnConversation,btnAlarms,btnChat;
     Switch aSwitch;
     Intent intent;
     //TextView txtTest;
     int machuyendoi;
+    private int  mHour, mMinute;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
         editor.putInt("trangthai",machuyendoi);
         editor.apply();
         aSwitch = (Switch) findViewById(R.id.mySwitch);
+        btnAlarms = (ImageButton) findViewById(R.id.btnAlarms);
+        btnChat = (ImageButton) findViewById(R.id.btnChat);
         aSwitch.setSelected(machuyendoi == 1);
 
         //txtTest = (TextView) findViewById(R.id.txtTest);
@@ -96,6 +112,53 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnAlarms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar c = Calendar.getInstance();
+                mHour = c.get(Calendar.HOUR_OF_DAY);
+                mMinute = c.get(Calendar.MINUTE);
+
+                TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                          final String time = hourOfDay + "|" + minute;
+                        try {
+                            final io.socket.client.Socket socket = IO.socket("http://103.27.236.133:3000/");
+                            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+                                @Override
+                                public void call(Object... args) {
+                                    try {
+
+
+                                        socket.emit("alarm",time);
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                            socket.connect();
+
+
+                        } catch (URISyntaxException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },mHour,mMinute,false);
+                timePickerDialog.show();
+
+
+            }
+
+        });
+        btnChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent1 = new Intent(MainActivity.this,ChatActivity.class);
+                startActivity(intent1);
+            }
+        });
 
     }
 
