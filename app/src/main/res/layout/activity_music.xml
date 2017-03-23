@@ -53,7 +53,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/previousButton"
-        android:src="@drawable/ic_fast_rewind_black_24dp"/>
+        android:src="@drawable/ic_fast_rewind_black_24dp"
+        android:visibility="gone"/>
     <ImageButton
         android:id="@+id/nextButton"
         android:layout_width="wrap_content"
@@ -96,9 +97,10 @@
         android:id="@+id/fastForwardButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:src="@drawable/ic_fast_forward_black_24dp"
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/nextButton"
-        android:src="@drawable/ic_fast_forward_black_24dp"/>
+        android:layout_toStartOf="@+id/nextButton" />
     <LinearLayout
         android:id="@+id/textWorkaround"
         android:layout_width="fill_parent"

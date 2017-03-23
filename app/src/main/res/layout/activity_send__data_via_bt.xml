@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="iot.tdmu.edu.vn.smartteddy.ui.Send_Data_viaBTActivity">
+    tools:context="iot.tdmu.edu.vn.smartteddy.ui.Send_Data_viaBTActivity"
+    android:background="@drawable/laycauhinhwifi">
 
     <Button
         android:id="@+id/btnSend"

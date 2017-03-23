@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="iot.tdmu.edu.vn.smartteddy.ui.Audio2Activity">
+    tools:context="iot.tdmu.edu.vn.smartteddy.ui.Audio2Activity"
+    android:background="@drawable/guiloithoai">
 
     <Button
         android:id="@+id/stopRecord"

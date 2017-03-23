@@ -1,6 +1,8 @@
 package iot.tdmu.edu.vn.smartteddy.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -10,7 +12,9 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
@@ -91,17 +95,28 @@ public class MusicActivity extends AppCompatActivity {
         songArrayAdapter = new ArrayAdapter<>(MusicActivity.this, android.R.layout.simple_list_item_1, dsKQ);
 
 
-
-
         intent = getIntent();
         ma = intent.getIntExtra("MA", 0);
-        machuyendoi = getSharedPreferences("machuyendoi",MODE_PRIVATE).getInt("trangthai",0);
-        Log.e("MAB",machuyendoi + "");
+        machuyendoi = getSharedPreferences("machuyendoi", MODE_PRIVATE).getInt("trangthai", 0);
+        Log.e("MAB", machuyendoi + "");
         switch (ma) {
             case 1:
                 lvPlaylist_ThieuNhi.setVisibility(View.VISIBLE);
                 lvPlayList_NgoaiQuoc.setVisibility(View.GONE);
                 lvPlayList_Truyen.setVisibility(View.GONE);
+                if (machuyendoi == 0) {
+                    loopButton.setVisibility(View.VISIBLE);
+                    previousButton.setVisibility(View.VISIBLE);
+                    nextButton.setVisibility(View.VISIBLE);
+                    shuffleButton.setVisibility(View.GONE);
+                } else {
+                    loopButton.setVisibility(View.GONE);
+                    previousButton.setVisibility(View.GONE);
+                    nextButton.setVisibility(View.GONE);
+                    txtCount.setVisibility(View.GONE);
+                    seekBar.setVisibility(View.GONE);
+                    shuffleButton.setVisibility(View.VISIBLE);
+                }
                 URL url = null;
                 try {
                     url = new URL("http://103.27.236.133:3000/api/v1/album/1");
@@ -116,6 +131,19 @@ public class MusicActivity extends AppCompatActivity {
                 lvPlaylist_ThieuNhi.setVisibility(View.GONE);
                 lvPlayList_NgoaiQuoc.setVisibility(View.VISIBLE);
                 lvPlayList_Truyen.setVisibility(View.GONE);
+                if (machuyendoi == 0) {
+                    loopButton.setVisibility(View.VISIBLE);
+                    previousButton.setVisibility(View.VISIBLE);
+                    nextButton.setVisibility(View.VISIBLE);
+                    shuffleButton.setVisibility(View.GONE);
+                } else {
+                    loopButton.setVisibility(View.GONE);
+                    previousButton.setVisibility(View.GONE);
+                    nextButton.setVisibility(View.GONE);
+                    txtCount.setVisibility(View.GONE);
+                    seekBar.setVisibility(View.GONE);
+                    shuffleButton.setVisibility(View.VISIBLE);
+                }
                 URL url1 = null;
                 try {
                     url1 = new URL("http://103.27.236.133:3000/api/v1/album/3");
@@ -130,6 +158,19 @@ public class MusicActivity extends AppCompatActivity {
                 lvPlaylist_ThieuNhi.setVisibility(View.GONE);
                 lvPlayList_NgoaiQuoc.setVisibility(View.GONE);
                 lvPlayList_Truyen.setVisibility(View.VISIBLE);
+                if (machuyendoi == 0) {
+                    loopButton.setVisibility(View.VISIBLE);
+                    previousButton.setVisibility(View.VISIBLE);
+                    nextButton.setVisibility(View.VISIBLE);
+                    shuffleButton.setVisibility(View.GONE);
+                } else {
+                    loopButton.setVisibility(View.GONE);
+                    previousButton.setVisibility(View.GONE);
+                    nextButton.setVisibility(View.GONE);
+                    txtCount.setVisibility(View.GONE);
+                    seekBar.setVisibility(View.GONE);
+                    shuffleButton.setVisibility(View.VISIBLE);
+                }
                 URL url2 = null;
                 try {
                     url2 = new URL("http://103.27.236.133:3000/api/v1/album/2");
@@ -159,54 +200,77 @@ public class MusicActivity extends AppCompatActivity {
         });
     }
 
-    public String getPath(Uri uri)
-    {
-        String[] projection = { MediaStore.Images.Media.DATA };
+    public String getPath(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
         if (cursor == null) return null;
-        int column_index =  cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
-        String s=cursor.getString(column_index);
+        String s = cursor.getString(column_index);
         cursor.close();
         return s;
     }
-    public String getRealPathFromURI(Context context, Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            String[] proj = { MediaStore.Images.Media.DATA };
-            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
-            int column_index =  cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
-    public String getFileName(Uri uri) {
-        String result = null;
-        if (uri.getScheme().equals("content")) {
-            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-            try {
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-        if (result == null) {
-            result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
-            }
-        }
-        return result;
-    }
-
+//    public String getRealPathFromURI(Context context, Uri contentUri) {
+//        Cursor cursor = null;
+//        try {
+//            String[] proj = { MediaStore.Images.Media.DATA };
+//            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
+//            int column_index =  cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+//            cursor.moveToFirst();
+//            return cursor.getString(column_index);
+//        } finally {
+//            if (cursor != null) {
+//                cursor.close();
+//            }
+//        }
+//    }
+//
+//    @SuppressLint("NewApi")
+//    public static String getRealPathFromURI_API19(Context context, Uri uri){
+//        String filePath = "";
+//        String wholeID = DocumentsContract.getDocumentId(uri);
+//
+//        // Split at colon, use second item in the array
+//        String id = wholeID.split(":")[1];
+//
+//        String[] column = { MediaStore.Images.Media.DATA };
+//
+//        // where id is equal to
+//        String sel = MediaStore.Images.Media._ID + "=?";
+//
+//        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//                column, sel, new String[]{ id }, null);
+//
+//        int columnIndex = cursor.getColumnIndex(column[0]);
+//
+//        if (cursor.moveToFirst()) {
+//            filePath = cursor.getString(columnIndex);
+//        }
+//        cursor.close();
+//        return filePath;
+//    }
+//
+//    public String getFileName(Uri uri) {
+//        String result = null;
+//        if (uri.getScheme().equals("content")) {
+//            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+//            try {
+//                if (cursor != null && cursor.moveToFirst()) {
+//                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+//                }
+//            } finally {
+//                cursor.close();
+//            }
+//        }
+//        if (result == null) {
+//            result = uri.getPath();
+//            int cut = result.lastIndexOf('/');
+//            if (cut != -1) {
+//                result = result.substring(cut + 1);
+//            }
+//        }
+//        return result;
+//    }
 
 
     @Override
@@ -215,35 +279,32 @@ public class MusicActivity extends AppCompatActivity {
         if (requestCode == Constants.REQUEST_BROWSE
                 && resultCode == Activity.RESULT_OK && data != null) {
             final Uri uri = data.getData();
-            final String result = "/storage/emulated/0/Music/" + getFileName(uri);
-            //final String result = getRealPathFromURI(MusicActivity.this,uri);
+            //final String result = "/storage/emulated/0/Music/" + getFileName(uri);
+            //Log.e("TAG",getFileName(uri));
+            final String result = FileUtil.getPath(MusicActivity.this, uri);
             //Log.e("FILE",result);
             if (uri != null) {
                 final byte[] as = FileUtil.getByteArrayFromLocalFile(result);
-                Log.e("FILE",as.length +"");
-                Log.e("FILE",uri.toString());
+                Log.e("FILE", as.length + "");
+                Log.e("FILE", uri.toString());
                 try {
                     socket = IO.socket("http://103.27.236.133:3000/");
-                    socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-                        @Override
-                        public void call(Object... args) {
-                            try {
-                                JSONObject obj = new JSONObject();
-                                obj.put("data_music",as);
-
-                                socket.emit("playBuffer",obj);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    socket.connect();
-
-
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }
+                socket.connect();
+
+                try {
+                    JSONObject obj = new JSONObject();
+                    obj.put("data_music", as);
+
+                    socket.emit("playBuffer", obj);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
             }
         }
     }
@@ -341,8 +402,8 @@ public class MusicActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     tam = machuyendoi;
-                    Log.e("MACHUYENDOI",tam + "");
-                    if(tam == 0) {
+                    Log.e("MACHUYENDOI", tam + "");
+                    if (tam == 0) {
                         posListView = position;
                         Log.e("MACHUYENDOI", machuyendoi + " ");
                         try {
@@ -365,10 +426,8 @@ public class MusicActivity extends AppCompatActivity {
                         } catch (Exception e) {
                             Log.e("LOI", e.toString());
                         }
-                    } else if (tam == 1){
-                        class RequetsTask extends AsyncTask<URL,Void,ArrayList<SongA>>{
-
-
+                    } else if (tam == 1) {
+                        class RequetsTask extends AsyncTask<URL, Void, ArrayList<SongA>> {
                             @Override
                             protected ArrayList<SongA> doInBackground(URL... params) {
                                 URL link = params[0];
@@ -408,7 +467,7 @@ public class MusicActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     posListView = position;
                     tam = machuyendoi;
-                    if(tam == 0) {
+                    if (tam == 0) {
                         try {
                             if (player != null && player.isPlaying()) {
                                 player.stop();
@@ -429,10 +488,8 @@ public class MusicActivity extends AppCompatActivity {
                         } catch (Exception e) {
                             Log.e("LOI", e.toString());
                         }
-                    }else if (tam == 1){
-                        class RequetsTask1 extends AsyncTask<URL,Void,ArrayList<SongA>>{
-
-
+                    } else if (tam == 1) {
+                        class RequetsTask1 extends AsyncTask<URL, Void, ArrayList<SongA>> {
                             @Override
                             protected ArrayList<SongA> doInBackground(URL... params) {
                                 URL link = params[0];
@@ -471,14 +528,13 @@ public class MusicActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     posListView = position;
                     tam = machuyendoi;
-                    if(tam == 0) {
+                    if (tam == 0) {
                         try {
                             if (player != null && player.isPlaying()) {
                                 player.stop();
                                 player.release();
                                 player = null;
                             }
-
                             player = new MediaPlayer();
                             player.setAudioStreamType(AudioManager.STREAM_MUSIC);
                             player.setDataSource(String.format("http://103.27.236.133:3000%s", songs.get(position).getSong_src()));
@@ -492,8 +548,8 @@ public class MusicActivity extends AppCompatActivity {
                         } catch (Exception e) {
                             Log.e("LOI", e.toString());
                         }
-                    }else if (tam == 1){
-                        class RequetsTask2 extends AsyncTask<URL,Void,ArrayList<SongA>>{
+                    } else if (tam == 1) {
+                        class RequetsTask2 extends AsyncTask<URL, Void, ArrayList<SongA>> {
 
 
                             @Override
@@ -630,6 +686,9 @@ public class MusicActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     if (!player.isPlaying()) {
                         player.start();
+                    } else {
+                        player.start();
+                        playButton.setImageResource(R.drawable.ic_pause_black_24dp);
                     }
                 }
             });
@@ -666,7 +725,7 @@ public class MusicActivity extends AppCompatActivity {
         };
 
         private void seekUpdation() {
-            if(player != null) {
+            if (player != null) {
                 seekBar.setProgress(player.getCurrentPosition());
                 seekHandler.postDelayed(run, 1000);
                 txtCount.setText(milliSecondsToTimer(player.getCurrentPosition()) + "/" + milliSecondsToTimer(player.getDuration()));

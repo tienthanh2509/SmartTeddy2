@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="iot.tdmu.edu.vn.smartteddy.ui.ChatActivity"
-    android:weightSum="1">
+    android:weightSum="1"
+    android:background="@drawable/message">
 
 
     <LinearLayout

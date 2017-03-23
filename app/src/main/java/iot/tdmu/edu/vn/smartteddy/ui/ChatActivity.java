@@ -20,6 +20,7 @@ public class ChatActivity extends AppCompatActivity {
     ImageButton btnGui;
     TextView txtNoiDung;
     EditText txtTinNhan;
+    private io.socket.client.Socket socket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +30,12 @@ public class ChatActivity extends AppCompatActivity {
         btnGui = (ImageButton) findViewById(R.id.btnGui);
         txtNoiDung = (TextView) findViewById(R.id.txtNoiDung);
         txtTinNhan = (EditText) findViewById(R.id.txtTinNhan);
-
+        try {
+            socket = IO.socket("http://103.27.236.133:3000/");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        socket.connect();
         btnGui.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -37,25 +43,11 @@ public class ChatActivity extends AppCompatActivity {
                 txtNoiDung.setText(txtTinNhan.getText());
                 final String msg = txtNoiDung.getText().toString();
                 Log.e("TAG",msg);
+
                 try {
-                    final io.socket.client.Socket socket = IO.socket("http://103.27.236.133:3000/");
-                    socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-                        @Override
-                        public void call(Object... args) {
-                            try {
+                    socket.emit("speak",msg);
 
-
-                                socket.emit("data_chat",msg);
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    socket.connect();
-
-
-                } catch (URISyntaxException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

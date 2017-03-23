@@ -18,7 +18,7 @@ import iot.tdmu.edu.vn.smartteddy.audio.AudioRecordHelper;
 
 
 public class Audio2Activity extends AppCompatActivity {
-
+    private io.socket.client.Socket socket;
     Button stopRecord,playRecord,sendRecord;
     AudioRecordHelper audioRecordHelper;
     @Override
@@ -31,7 +31,12 @@ public class Audio2Activity extends AppCompatActivity {
 
         setButtonHandlers();
         enableButtons(false);
-
+        try {
+            socket = IO.socket("http://103.27.236.133:3000/");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        socket.connect();
         /*playRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,25 +58,12 @@ public class Audio2Activity extends AppCompatActivity {
                 final byte[] data_record = audioRecordHelper.getByteArray();
                 Log.e("TAG",data_record.length + "");
                 try {
-                    final io.socket.client.Socket socket = IO.socket("http://103.27.236.133:3000/");
-                    socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-                        @Override
-                        public void call(Object... args) {
-                            try {
-                                JSONObject obj = new JSONObject();
-                                obj.put("data_record",data_record);
+                    JSONObject obj = new JSONObject();
+                    obj.put("data_record",data_record);
 
-                                socket.emit("recordBuffer",obj);
+                    socket.emit("recordBuffer",obj);
 
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    socket.connect();
-
-
-                } catch (URISyntaxException e) {
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
